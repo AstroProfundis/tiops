@@ -37,8 +37,8 @@ type (
 	}
 )
 
-// Init builds and initializes a SSHExecutor
-func (sshExec *SSHExecutor) Init(config SSHConfig) error {
+// Initialize builds and initializes a SSHExecutor
+func (sshExec *SSHExecutor) Initialize(config SSHConfig) error {
 	// build easyssh config
 	sshExec.Config = &easyssh.MakeConfig{
 		Server:  config.Host,
@@ -58,8 +58,8 @@ func (sshExec *SSHExecutor) Init(config SSHConfig) error {
 	return nil
 }
 
-// Exec run the command via SSH
-func (sshExec *SSHExecutor) Exec(cmd string, sudo bool) ([]byte, []byte, error) {
+// Execute run the command via SSH
+func (sshExec *SSHExecutor) Execute(cmd string, sudo bool) ([]byte, []byte, error) {
 	// try to acquire root permission
 	if sudo {
 		cmd = fmt.Sprintf("/bin/bash -c 'sudo -H -u root %s'", cmd)

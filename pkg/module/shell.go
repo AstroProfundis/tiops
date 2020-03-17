@@ -33,12 +33,11 @@ type ShellModule struct {
 	sudo bool
 }
 
-// NewShellModule builds and returns a TiOpsModuleSystemd object base on
-// given config.
+// NewShellModule builds and returns a ShellModule object base on given config.
 func NewShellModule(config ShellModuleConfig) *ShellModule {
 	cmd := config.Command
 
-	if len(config.Chdir) > 0 {
+	if config.Chdir != "" {
 		cmd = fmt.Sprintf("cd %s && %s",
 			config.Chdir, cmd)
 	}

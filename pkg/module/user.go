@@ -34,7 +34,7 @@ const (
 	//usermodCmd = "/usr/sbin/usermod"
 )
 
-// UserModuleConfig is the configurations used to initialize a TiOpsModuleSystemd
+// UserModuleConfig is the configurations used to initialize a UserModule
 type UserModuleConfig struct {
 	Action string // add, del or modify user
 	Name   string // username
@@ -48,8 +48,7 @@ type UserModule struct {
 	cmd string // the built command
 }
 
-// NewUserModule builds and returns a TiOpsModuleSystemd object base on
-// given config.
+// NewUserModule builds and returns a UserModule object base on given config.
 func NewUserModule(config UserModuleConfig) *UserModule {
 	cmd := ""
 
@@ -57,12 +56,12 @@ func NewUserModule(config UserModuleConfig) *UserModule {
 	case UserActionAdd:
 		cmd = useraddCmd
 		// set user's home
-		if len(config.Home) > 0 {
+		if config.Home != "" {
 			cmd = fmt.Sprintf("/usr/bin/mkdir -p %s && %s -d %s",
 				config.Home, cmd, config.Home)
 		}
 		// set user's login shell
-		if len(config.Shell) > 0 {
+		if config.Shell != "" {
 			cmd = fmt.Sprintf("%s -s %s", config.Shell)
 		} else {
 			cmd = fmt.Sprintf("%s -s %s", defaultShell)
@@ -101,7 +100,7 @@ func (mod *UserModule) Execute(exec executor.TiOpsExecutor) ([]byte, []byte, err
 }
 
 func buildBashInsertLine(line string, file string) string {
-	if len(line) < 1 || len(file) < 1 {
+	if line == "" || file == "" {
 		return ""
 	}
 	return fmt.Sprintf("grep -qxF '%s' %s || echo '%s' >> %s",

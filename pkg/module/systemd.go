@@ -32,8 +32,8 @@ type SystemdModuleConfig struct {
 	Unit         string // the name of systemd unit(s)
 	Action       string // the action to perform with the unit
 	Enabled      bool   // enable the unit or not
-	ReloadDaemon bool   // Run daemon-reload before other actions
-	Scope        string // user or system
+	ReloadDaemon bool   // run daemon-reload before other actions
+	Scope        string // user, system or global
 	Force        bool   // add the `--force` arg to systemctl command
 }
 
@@ -55,7 +55,7 @@ func NewSystemdModule(config SystemdModuleConfig) *SystemdModule {
 
 	switch config.Scope {
 	case SystemdScopeUser:
-		sudo = false
+		sudo = false // `--user` scope does not need root priviledge
 		fallthrough
 	case SystemdScopeGlobal:
 		systemctl = fmt.Sprintf("%s --%s", config.Scope)

@@ -39,20 +39,25 @@ type SystemdModuleConfig struct {
 
 // SystemdModule is the module used to control systemd units
 type SystemdModule struct {
-	cmd string // the built command
+	cmd  string // the built command
+	sudo bool   // does the command need to be run as root
 }
 
 // NewSystemdModule builds and returns a SystemdModule object base on
 // given config.
 func NewSystemdModule(config SystemdModuleConfig) *SystemdModule {
 	systemctl := "/usr/bin/systemctl" // TODO: find binary in $PATH
+	sudo := true
 
 	if config.Force {
 		systemctl = fmt.Sprintf("%s --force", systemctl)
 	}
 
 	switch config.Scope {
-	case SystemdScopeUser, SystemdScopeGlobal:
+	case SystemdScopeUser:
+		sudo = false
+		fallthrough
+	case SystemdScopeGlobal:
 		systemctl = fmt.Sprintf("%s --%s", config.Scope)
 	}
 
@@ -70,12 +75,13 @@ func NewSystemdModule(config SystemdModuleConfig) *SystemdModule {
 	}
 
 	return &SystemdModule{
-		cmd: cmd,
+		cmd:  cmd,
+		sudo: sudo,
 	}
 }
 
 // Execute passes the command to executor and returns its results, the executor
 // should be already initialized.
 func (mod *SystemdModule) Execute(exec executor.TiOpsExecutor) ([]byte, []byte, error) {
-	return exec.Execute(mod.cmd, true)
+	return exec.Execute(mod.cmd, mod.sudo)
 }

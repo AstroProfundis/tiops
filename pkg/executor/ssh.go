@@ -58,11 +58,11 @@ func (sshExec *SSHExecutor) Initialize(config SSHConfig) error {
 	return nil
 }
 
-// Execute run the command via SSH
+// Execute run the command via SSH, it's not invoking any specific shell by default.
 func (sshExec *SSHExecutor) Execute(cmd string, sudo bool) ([]byte, []byte, error) {
 	// try to acquire root permission
 	if sudo {
-		cmd = fmt.Sprintf("/bin/bash -c 'sudo -H -u root %s'", cmd)
+		cmd = fmt.Sprintf("sudo -H -u root %s", cmd)
 	}
 
 	// run command on remote host

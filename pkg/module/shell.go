@@ -19,10 +19,6 @@ import (
 	"github.com/pingcap-incubator/tiops/pkg/executor"
 )
 
-const (
-	defaultShell = "/bin/bash"
-)
-
 // ShellModuleConfig is the configurations used to initialize a TiOpsModuleSystemd
 type ShellModuleConfig struct {
 	Command  string // the command to run

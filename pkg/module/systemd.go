@@ -20,27 +20,41 @@ import (
 	"github.com/pingcap-incubator/tiops/pkg/executor"
 )
 
-// TiOpsModuleSystemdConfig is the configurations used to initialize a TiOpsModuleSystemd
-type TiOpsModuleSystemdConfig struct {
+const (
+	// scope can be either "system", "user" or "global"
+	SystemdScopeSystem = "system"
+	SystemdScopeUser   = "user"
+	SystemdScopeGlobal = "global"
+)
+
+// SystemdModuleConfig is the configurations used to initialize a SystemdModule
+type SystemdModuleConfig struct {
 	Unit         string // the name of systemd unit(s)
 	Action       string // the action to perform with the unit
 	Enabled      bool   // enable the unit or not
 	ReloadDaemon bool   // Run daemon-reload before other actions
-
-	// TODO: support more systemd functionalities
-	//Scope string // user or system
-	//Force bool // add the `--force` arg to systemctl command
+	Scope        string // user or system
+	Force        bool   // add the `--force` arg to systemctl command
 }
 
-// TiOpsModuleSystemd is the module used to control systemd units
-type TiOpsModuleSystemd struct {
+// SystemdModule is the module used to control systemd units
+type SystemdModule struct {
 	cmd string // the built command
 }
 
-// NewTiOpsModuleSystemd builds and returns a TiOpsModuleSystemd object base on
+// NewSystemdModule builds and returns a SystemdModule object base on
 // given config.
-func NewTiOpsModuleSystemd(config TiOpsModuleSystemdConfig) *TiOpsModuleSystemd {
+func NewSystemdModule(config SystemdModuleConfig) *SystemdModule {
 	systemctl := "/usr/bin/systemctl" // TODO: find binary in $PATH
+
+	if config.Force {
+		systemctl = fmt.Sprintf("%s --force", systemctl)
+	}
+
+	switch config.Scope {
+	case SystemdScopeUser, SystemdScopeGlobal:
+		systemctl = fmt.Sprintf("%s --%s", config.Scope)
+	}
 
 	cmd := fmt.Sprintf("%s %s %s",
 		systemctl, strings.ToLower(config.Action), config.Unit)
@@ -55,13 +69,13 @@ func NewTiOpsModuleSystemd(config TiOpsModuleSystemdConfig) *TiOpsModuleSystemd 
 			systemctl, cmd)
 	}
 
-	return &TiOpsModuleSystemd{
+	return &SystemdModule{
 		cmd: cmd,
 	}
 }
 
 // Execute passes the command to executor and returns its results, the executor
 // should be already initialized.
-func (mod *TiOpsModuleSystemd) Execute(exec executor.TiOpsExecutor) ([]byte, []byte, error) {
+func (mod *SystemdModule) Execute(exec executor.TiOpsExecutor) ([]byte, []byte, error) {
 	return exec.Execute(mod.cmd, true)
 }

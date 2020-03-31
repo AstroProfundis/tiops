@@ -91,8 +91,8 @@ func parseInventory(dir string, inv *aini.InventoryData) (string, *meta.ClusterM
 		log.Warnf("If you want to continue importing, you'll have to set a new name for the cluster.")
 
 		// prompt user for a chance to set a new cluster name
-		if input, ok := utils.Confirm("Do you want to continue?"); !ok {
-			log.Output(fmt.Sprintf("Your answer is %s, exit.", input))
+		if ans, ok := utils.Confirm("Do you want to continue? [Y]es/[N]o:"); !ok {
+			log.Output(fmt.Sprintf("Your answer is %s, exit.", ans))
 			return "", nil, errors.New("operation cancelled by user")
 		}
 		clsName = utils.Prompt("New cluster name:")
@@ -100,14 +100,16 @@ func parseInventory(dir string, inv *aini.InventoryData) (string, *meta.ClusterM
 
 	promptMsg := fmt.Sprintf("Prepared to import TiDB %s cluster %s, do you want to continue?\n[Y]es/[N]o:",
 		clsMeta.Version, clsName)
-	ans := utils.Prompt(promptMsg)
-	switch strings.ToLower(ans) {
-	case "y", "yes":
+	ans, ok := utils.Confirm(promptMsg)
+	if ok {
 		log.Infof("Importing cluster...")
-	case "n", "no":
-		return "", nil, errors.New("operation cancelled by user")
-	default:
-		return "", nil, errors.New("unknown input, abort")
+	} else {
+		switch strings.ToLower(ans) {
+		case "n", "no":
+			return "", nil, errors.New("operation cancelled by user")
+		default:
+			return "", nil, errors.New("unknown input, abort")
+		}
 	}
 
 	// set global vars in group_vars/all.yml

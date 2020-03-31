@@ -217,7 +217,13 @@ func (i *instance) DataDir() string {
 }
 
 func (i *instance) LogDir() string {
-	logDir := reflect.ValueOf(i.InstanceSpec).FieldByName("LogDir").Interface().(string)
+	logDir := ""
+
+	field := reflect.ValueOf(i.InstanceSpec).FieldByName("LogDir")
+	if field.IsValid() {
+		logDir = field.Interface().(string)
+	}
+
 	if logDir == "" {
 		logDir = "log"
 	}

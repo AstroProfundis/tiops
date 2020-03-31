@@ -24,6 +24,7 @@ import (
 	"github.com/pingcap-incubator/tiops/pkg/log"
 	"github.com/pingcap-incubator/tiops/pkg/meta"
 	"github.com/pingcap-incubator/tiops/pkg/utils"
+	tiuputils "github.com/pingcap-incubator/tiup/pkg/utils"
 	"github.com/relex/aini"
 	"gopkg.in/yaml.v2"
 )
@@ -81,6 +82,20 @@ func parseInventory(dir string, inv *aini.InventoryData) (string, *meta.ClusterM
 		}
 	} else {
 		return "", nil, errors.New("no available host in the inventory file")
+	}
+
+	// check cluster name with other clusters managed by us for conflicts
+	if tiuputils.IsExist(meta.ClusterPath(clsName, meta.MetaFileName)) {
+		log.Errorf("Cluster name '%s' already exists.", clsName)
+		log.Warnf("Note that if you import the same cluster multiple times, there might be conflicts when managing.")
+		log.Warnf("If you want to continue importing, you'll have to set a new name for the cluster.")
+
+		// prompt user for a chance to set a new cluster name
+		if input, ok := utils.Confirm("Do you want to continue?"); !ok {
+			log.Output(fmt.Sprintf("Your answer is %s, exit.", input))
+			return "", nil, errors.New("operation cancelled by user")
+		}
+		clsName = utils.Prompt("New cluster name:")
 	}
 
 	promptMsg := fmt.Sprintf("Prepared to import TiDB %s cluster %s, do you want to continue?\n[Y]es/[N]o:",

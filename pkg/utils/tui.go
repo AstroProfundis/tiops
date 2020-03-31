@@ -55,8 +55,6 @@ func addRow(t *tabby.Tabby, rawLine []string, header bool) {
 
 // Prompt accepts input from console by user
 func Prompt(prompt string) string {
-	defer fmt.Println("") // print a new line after reading input
-
 	if prompt != "" {
 		prompt += " " // append a whitespace
 	}

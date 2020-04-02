@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/appleboy/easyssh-proxy"
+	"github.com/fatih/color"
 	"github.com/joomcode/errorx"
 	"github.com/pingcap-incubator/tiops/pkg/cliutil"
 	"github.com/pingcap-incubator/tiops/pkg/errutil"
@@ -121,7 +122,8 @@ func (e *SSHExecutor) Execute(cmd string, sudo bool, timeout ...time.Duration) (
 		if len(stdout) > 0 || len(stderr) > 0 {
 			output := strings.TrimSpace(strings.Join([]string{stdout, stderr}, "\n"))
 			baseErr = baseErr.
-				WithProperty(cliutil.SuggestionFromFormat("Command output on remote host:\n%s", output))
+				WithProperty(cliutil.SuggestionFromFormat("Command output on remote host:\n%s\n",
+					color.YellowString(output)))
 		}
 		return []byte(stdout), []byte(stderr), baseErr
 	}

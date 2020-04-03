@@ -14,7 +14,6 @@
 package utils
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -58,13 +57,13 @@ func CopyFile(src, dst string) error {
 // Move moves a file or directory from src to dst
 func Move(src, dst string) error {
 	if src == "" || dst == "" {
-		return errors.New("path can not be empty")
+		return fmt.Errorf("path can not be empty")
 	}
 
 	if _, err := os.Stat(dst); !os.IsNotExist(err) {
 		return fmt.Errorf("destination path %s already exist", dst)
 	}
-	if err := os.MkdirAll(path.Dir(dst), 0755); err != nil {
+	if err := CreateDir(path.Dir(dst)); err != nil {
 		return err
 	}
 

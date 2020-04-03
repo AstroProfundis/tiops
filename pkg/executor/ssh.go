@@ -122,7 +122,8 @@ func (e *SSHExecutor) Execute(cmd string, sudo bool, timeout ...time.Duration) (
 		if len(stdout) > 0 || len(stderr) > 0 {
 			output := strings.TrimSpace(strings.Join([]string{stdout, stderr}, "\n"))
 			baseErr = baseErr.
-				WithProperty(cliutil.SuggestionFromFormat("Command output on remote host:\n%s\n",
+				WithProperty(cliutil.SuggestionFromFormat("Command output on remote host %s:\n%s\n",
+					e.Config.Server,
 					color.YellowString(output)))
 		}
 		return []byte(stdout), []byte(stderr), baseErr

@@ -97,16 +97,16 @@ func (c *CheckSys) Execute(ctx *Context) error {
 		// check if numactl is installed
 		stdout, stderr, err := e.Execute("numactl --show", false)
 		if err != nil || len(stderr) > 0 {
-			results = append([]*operator.CheckResult{&operator.CheckResult{
+			results = append(results, &operator.CheckResult{
 				Name: operator.CheckNameCommand,
-				Err:  fmt.Errorf("numactl not usable, %s", stderr),
+				Err:  fmt.Errorf("numactl not usable, %s", strings.Trim(string(stderr), "\n")),
 				Msg:  "numactl is not installed properly",
-			}})
+			})
 		} else {
-			results = append([]*operator.CheckResult{&operator.CheckResult{
+			results = append(results, &operator.CheckResult{
 				Name: operator.CheckNameCommand,
 				Msg:  strings.Split(string(stdout), "\n")[0],
-			}})
+			})
 		}
 		ctx.SetCheckResults(c.host, results)
 	case CheckTypePartitions:

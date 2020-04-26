@@ -6,6 +6,9 @@ version=${version-v4.0.0-rc}
 name=test_cmd
 topo=./topo/full.yaml
 
+tiup-cluster check $topo -i ~/.ssh/id_rsa --enable-mem --enable-cpu --apply
+
+yes | tiup-cluster check $topo -i ~/.ssh/id_rsa
 
 yes | tiup-cluster deploy $name $version $topo -i ~/.ssh/id_rsa
 
